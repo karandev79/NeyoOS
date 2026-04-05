@@ -1,5 +1,6 @@
 // used to setup db schema
 
+import { date } from "drizzle-orm/pg-core";
 import {
   pgTable,
   uuid,
@@ -8,6 +9,7 @@ import {
   integer,
   boolean,
   pgEnum,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const frequencyEnum = pgEnum("frequency", ["daily", "weekly"]);
@@ -64,4 +66,23 @@ export const thoughts = pgTable("thoughts", {
   tags: text("tags").array(),
   isPinned: boolean("is_pinned").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// habit loggs
+export const habitLogs = pgTable("habit_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  habitId: uuid("habit_id")
+    .references(() => habits.id)
+    .notNull(),
+  date: date("date").notNull(),
+  completed: boolean("completed").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+},
+(table) => {
+  return {
+    uniqueHabitDate: uniqueIndex("habit_date_unique").on(
+      table.habitId,
+      table.date
+    ),
+  };
 });
