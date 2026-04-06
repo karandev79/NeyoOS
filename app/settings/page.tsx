@@ -10,14 +10,14 @@ export default function SettingsPage() {
     const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
     useEffect(() => {
-        fetch("/api/setting", { headers: { "Authorization": `Bearer ${API_KEY}` } })
+        fetch("/api/settings", { headers: { "Authorization": `Bearer ${API_KEY}` } })
             .then(res => res.json())
             .then(data => setForm(data));
     }, []);
 
     const save = async () => {
         setSaving(true);
-        await fetch("/api/setting", {
+        await fetch("/api/settings", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
             body: JSON.stringify(form),

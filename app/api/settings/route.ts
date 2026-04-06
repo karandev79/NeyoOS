@@ -4,6 +4,7 @@ import { isAuthorized } from "@/lib/auth";
 import { error } from "console";
 import { AwardIcon } from "lucide-react";
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm"; 
 
 export async function GET(request: Request) {
     if (!isAuthorized(request)) return NextResponse.json({ error: "Unauthorized"}, { status: 401 });
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
         const existing = await db.select().from(userSettings).limit(1);
 
         if (existing.length > 0) {
-            await db.update(userSettings).set({ ...body, updatedAt: new Date() }).where(userSettings.id === existing[0].id);
+            await db.update(userSettings).set({ ...body, updatedAt: new Date() }).where(eq(userSettings.id, existing[0].id));
         } else {
             await db.insert(userSettings).values(body);
         }
