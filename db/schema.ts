@@ -86,3 +86,13 @@ export const habitLogs = pgTable("habit_logs", {
     ),
   };
 });
+
+// user setting
+export const userSettings = pgTable("user_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull().default("User"),
+  height: integer("height"),
+  weight: integer("weight"),
+  additionalInfo: text("additional_info"), // for more details
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

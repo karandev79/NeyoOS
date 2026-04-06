@@ -31,7 +31,7 @@ export default function TasksPage() {
   const [newTitle, setNewTitle] = useState("");
   const [newPriority, setNewPriority] = useState<TaskPriority>("medium");
 
-  const API_KEY = process.env.API_KEY // get api key from .env file
+  const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // import api key
 
   // load tasks
   const fetchTasks = async () => {
@@ -175,8 +175,8 @@ export default function TasksPage() {
                   </td>
                   <td className="p-6 uppercase">
                     <span className={`text-[10px] font-black px-2 py-1 rounded-full border border-border ${task.priority === "high" ? "bg-red-500/10 text-red-500 border-red-500/20" :
-                        task.priority === "medium" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
-                          "bg-slate-500/10 text-slate-500 border-slate-500/20"
+                      task.priority === "medium" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                        "bg-slate-500/10 text-slate-500 border-slate-500/20"
                       }`}>
                       {task.priority}
                     </span>

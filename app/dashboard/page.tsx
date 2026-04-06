@@ -13,6 +13,7 @@ import {
   Wind,
   LayoutDashboard
 } from "lucide-react";
+import Link from "next/link";
 
 type Habit = { id: string; name: string; frequency?: string };
 type MoodEntry = { id: string; mood: number; energyLevel?: number; createdAt: string };
@@ -20,6 +21,8 @@ type Task = { id: string; title: string; priority: string; status: string };
 type Thought = { id: string; content: string; tags?: string[] };
 
 export default function DashboardPage() {
+  const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // import api key
+
   const [data, setData] = useState<{
     habits: Habit[];
     moods: MoodEntry[];
@@ -38,11 +41,18 @@ export default function DashboardPage() {
 
     const fetchData = async () => {
       try {
+        const fetchOptions: RequestInit = {
+          headers: {
+            "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+        };
         const [habRes, moodRes, taskRes, thoughtRes] = await Promise.all([
-          fetch("/api/habits"),
-          fetch("/api/mood"),
-          fetch("/api/tasks"),
-          fetch("/api/thoughts"),
+          fetch("/api/habits", fetchOptions),
+          fetch("/api/mood", fetchOptions),
+          fetch("/api/tasks", fetchOptions),
+          fetch("/api/thoughts", fetchOptions),
         ]);
 
         const [habits, moods, tasks, thoughts] = await Promise.all([
@@ -132,9 +142,11 @@ export default function DashboardPage() {
               <h2 className="text-2xl font-black flex items-center gap-3">
                 Tasks
               </h2>
-              <button className="text-xs font-mono uppercase tracking-tighter text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                View all Tasks <ArrowRight size={14} />
-              </button>
+              <Link href="/tasks">
+                <button className="text-xs font-mono uppercase tracking-tighter text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                  View all Tasks <ArrowRight size={14} />
+                </button>
+              </Link>
             </div>
 
             <div className="space-y-3">
