@@ -11,7 +11,8 @@ import {
   Loader2,
   TrendingDown,
   Wind,
-  LayoutDashboard
+  LayoutDashboard,
+  Shield
 } from "lucide-react";
 import Link from "next/link";
 
@@ -28,7 +29,8 @@ export default function DashboardPage() {
     moods: MoodEntry[];
     tasks: Task[];
     thoughts: Thought[];
-  }>({ habits: [], moods: [], tasks: [], thoughts: [] });
+    userName: string;
+  }>({ habits: [], moods: [], tasks: [], thoughts: [], userName: "User" });
   const [loading, setLoading] = useState(true);
 
   const [greeting, setGreeting] = useState("Good Day");
@@ -48,25 +50,28 @@ export default function DashboardPage() {
           },
           cache: "no-store",
         };
-        const [habRes, moodRes, taskRes, thoughtRes] = await Promise.all([
+        const [habRes, moodRes, taskRes, thoughtRes, settingsRes] = await Promise.all([
           fetch("/api/habits", fetchOptions),
           fetch("/api/mood", fetchOptions),
           fetch("/api/tasks", fetchOptions),
           fetch("/api/thoughts", fetchOptions),
+          fetch("/api/settings", fetchOptions),
         ]);
 
-        const [habits, moods, tasks, thoughts] = await Promise.all([
+        const [habits, moods, tasks, thoughts, settings] = await Promise.all([
           habRes.json(),
           moodRes.json(),
           taskRes.json(),
           thoughtRes.json(),
+          settingsRes.json(),
         ]);
 
         setData({
           habits: Array.isArray(habits) ? habits : [],
           moods: Array.isArray(moods) ? moods : [],
           tasks: Array.isArray(tasks) ? tasks : [],
-          thoughts: Array.isArray(thoughts) ? thoughts : []
+          thoughts: Array.isArray(thoughts) ? thoughts : [],
+          userName: settings && settings.name ? settings.name : "User"
         });
       } catch (e) {
         console.error("Dashboard failed to sync:", e);
@@ -100,19 +105,21 @@ export default function DashboardPage() {
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border pb-10">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-primary font-mono text-xs uppercase tracking-[0.2em]">
-              <Wind size={16} /> Overview
+              <Shield size={16} /> Neyo OS
             </div>
             <h1 className="text-5xl font-serif italic tracking-tight">
-              {greeting}, <span className="text-primary not-italic font-sans font-black">Karan</span>
+              {greeting}, <span className="text-primary not-italic font-sans font-black">{data.userName}</span>
             </h1>
             <p className="text-muted-foreground font-medium max-w-md">
               You have {data.tasks.filter(t => t.status !== "done").length} tasks pending today.
             </p>
           </div>
           <div className="flex gap-4">
-            <button className="h-12 px-6 rounded-full border border-border hover:bg-accent transition-all font-bold text-sm">
-              Settings
-            </button>
+            <Link href={"/settings"}>
+              <button className="h-12 px-6 rounded-full border border-border hover:bg-accent transition-all font-bold text-sm">
+                Settings
+              </button>
+            </Link>
             <button className="h-12 px-6 rounded-full bg-primary text-primary-foreground hover:opacity-90 shadow-xl shadow-primary/10 transition-all font-bold text-sm flex items-center gap-2">
               <Plus size={18} /> New Entry
             </button>

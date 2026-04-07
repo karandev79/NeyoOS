@@ -4,10 +4,10 @@ import { isAuthorized } from "@/lib/auth";
 import { error } from "console";
 import { AwardIcon } from "lucide-react";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm"; 
+import { eq } from "drizzle-orm";
 
 export async function GET(request: Request) {
-    if (!isAuthorized(request)) return NextResponse.json({ error: "Unauthorized"}, { status: 401 });
+    if (!isAuthorized(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         const setting = await db.select().from(userSettings).limit(1);
@@ -18,18 +18,20 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-    if (!isAuthorized(request)) return NextResponse.json({ error: "Unauthorized"}, {status: 401 });
+    if (!isAuthorized(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     try {
         const body = await request.json();
+        const { id, updatedAt, ...saveData } = body;
         const existing = await db.select().from(userSettings).limit(1);
 
         if (existing.length > 0) {
-            await db.update(userSettings).set({ ...body, updatedAt: new Date() }).where(eq(userSettings.id, existing[0].id));
+            await db.update(userSettings).set({ ...saveData, updatedAt: new Date() }).where(eq(userSettings.id, existing[0].id));
         } else {
-            await db.insert(userSettings).values(body);
+            await db.insert(userSettings).values(saveData);
         }
-        return NextResponse.json({ success: true});
+        return NextResponse.json({ success: true });
     } catch (error) {
-        return NextResponse.json ({ error: "Failed to update settings!"}, { status: 500 })
+        console.error("Save Error:", error);
+        return NextResponse.json({ error: "Failed to update settings!" }, { status: 500 })
     }
 }

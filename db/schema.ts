@@ -78,14 +78,14 @@ export const habitLogs = pgTable("habit_logs", {
   completed: boolean("completed").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 },
-(table) => {
-  return {
-    uniqueHabitDate: uniqueIndex("habit_date_unique").on(
-      table.habitId,
-      table.date
-    ),
-  };
-});
+  (table) => {
+    return {
+      uniqueHabitDate: uniqueIndex("habit_date_unique").on(
+        table.habitId,
+        table.date
+      ),
+    };
+  });
 
 // user setting
 export const userSettings = pgTable("user_settings", {

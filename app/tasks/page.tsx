@@ -23,6 +23,7 @@ type Task = {
   priority: TaskPriority;
   status: TaskStatus;
   dueDate?: string;
+  completedAt?: string;
 };
 
 export default function TasksPage() {
@@ -170,6 +171,13 @@ export default function TasksPage() {
                       <p className={`font-bold text-lg ${task.status === "done" ? "line-through opacity-40" : ""}`}>
                         {task.title}
                       </p>
+                      {task.status == "done" && task.completedAt && (
+                        <p className="text-[10px] font-mono text-primary mt-1 flex items-center gap-1 uppercase tracking-wider">
+                          <CheckCircle2 size={10} />
+                          Completed {new Date(task.completedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+
+                      )}
                       {task.description && <p className="text-xs text-muted-foreground mt-1">{task.description}</p>}
                     </div>
                   </td>
