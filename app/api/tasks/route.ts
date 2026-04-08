@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     }
     try {
         const body = await request.json();
-        const { title, description, priority, dueDate, status } = body;
+        const { title, description, priority, dueDate, status, tags } = body;
 
         if (!title) {
             return NextResponse.json(
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
                 description,
                 priority,
                 status,
+                tags,
                 dueDate: dueDate ? new Date(dueDate) : undefined,
             })
             .returning();

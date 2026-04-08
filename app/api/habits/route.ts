@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { habits } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { isAuthorized } from "@/lib/auth";       
-import { error } from "console";
 
 // GET function
 export async function GET(request: Request) {

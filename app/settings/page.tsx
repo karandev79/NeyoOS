@@ -30,10 +30,10 @@ export default function SettingsPage() {
         <div className="min-h-screen bg-background text-foreground p-6 md:p-12">
             <div className="max-w-2xl mx-auto space-y-10">
                 <Link href="/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-primary uppercase font-mono text-xs tracking-widest">
-                    <ChevronLeft size={16} /> Dashboard
+                    <ChevronLeft size={16} /> Home
                 </Link>
 
-                <h1 className="text-4xl font-black tracking-tighter">System Configuration</h1>
+                <h1 className="text-4xl font-black tracking-tighter">NEYO OS SETTINGS</h1>
 
                 <div className="space-y-6">
                     <div className="space-y-2">

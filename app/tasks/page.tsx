@@ -7,9 +7,7 @@ import {
   Trash2,
   Plus,
   ChevronLeft,
-  ArrowUpDown,
   Loader2,
-  Calendar
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,12 +22,15 @@ type Task = {
   status: TaskStatus;
   dueDate?: string;
   completedAt?: string;
+  tags?: string[];
 };
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState("");
+  const [newTags, setNewTags] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [newPriority, setNewPriority] = useState<TaskPriority>("medium");
 
   const API_KEY = process.env.NEXT_PUBLIC_API_KEY; // import api key
@@ -58,17 +59,19 @@ export default function TasksPage() {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
+    const tagsArray = newTags.split(',').map(t => t.trim()).filter(t => t !== "");
     const res = await fetch("/api/tasks", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${API_KEY}`,
       },
-      body: JSON.stringify({ title: newTitle, priority: newPriority, status: "todo" }),
+      body: JSON.stringify({ title: newTitle, priority: newPriority, status: "todo", tags: tagsArray }),
     });
 
     if (res.ok) {
       setNewTitle("");
+      setNewTags("");
       fetchTasks();
     }
   };
@@ -123,13 +126,16 @@ export default function TasksPage() {
         </div>
 
         <form onSubmit={addTask} className="flex flex-col md:flex-row gap-4 p-6 bg-card border border-border rounded-3xl shadow-sm">
-          <div className="flex-1">
+          <div className="flex-1 space-y-2">
             <input
               type="text"
               placeholder="What's our goal? :D"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               className="bg-transparent border-none text-xl font-bold w-full focus:ring-0 placeholder:opacity-30"
+            />
+            <input type="text" placeholder="Tags" value={newTags} onChange={(e) => setNewTags(e.target.value)}
+              className="bg-transparent border-none text-xs font-mono w-full focus:ring-0 placeholder:opacity-30 border-t border-border/10 pt-2"
             />
           </div>
           <div className="flex items-center gap-4">
@@ -148,6 +154,13 @@ export default function TasksPage() {
           </div>
         </form>
 
+        <div className="relative group max-w-md ml-auto">
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none opacity-40 group-focus-within:text-primary group-focus-within:opacity-100 transition-all">
+            <Loader2 size={14} className={loading ? "animate-spin" : "hidden"} />
+            <Plus size={14} className={!loading ? "rotate-45" : "hidden"} />
+          </div>
+          <input type="text" placeholder="Search names/tags" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-card border border-border rounded-2xl py-3 pl-10 pr-4 text-[10px] font-mono tracking-widest uppercase focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:opacity-20" />
+        </div>
         <div className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-sm">
           <table className="w-full text-left border-collapse">
             <thead className="bg-secondary/30 border-b border-border">
@@ -159,43 +172,59 @@ export default function TasksPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {tasks.map((task) => (
-                <tr key={task.id} className="group hover:bg-accent/30 transition-colors">
-                  <td className="p-6">
-                    <button onClick={() => toggleTask(task.id, task.status)} className="text-muted-foreground hover:text-primary transition-all">
-                      {task.status === "done" ? <CheckCircle2 className="text-primary" /> : <Circle />}
-                    </button>
-                  </td>
-                  <td className="p-6">
-                    <div>
-                      <p className={`font-bold text-lg ${task.status === "done" ? "line-through opacity-40" : ""}`}>
-                        {task.title}
-                      </p>
-                      {task.status == "done" && task.completedAt && (
-                        <p className="text-[10px] font-mono text-primary mt-1 flex items-center gap-1 uppercase tracking-wider">
-                          <CheckCircle2 size={10} />
-                          Completed {new Date(task.completedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </p>
+              {tasks
+                .filter((task) => {
+                  const query = searchQuery.toLowerCase();
+                  const matchesTitle = task.title.toLowerCase().includes(query);
+                  const matchesTags = task.tags?.some(tag => tag.toLowerCase().includes(query));
 
-                      )}
-                      {task.description && <p className="text-xs text-muted-foreground mt-1">{task.description}</p>}
-                    </div>
-                  </td>
-                  <td className="p-6 uppercase">
-                    <span className={`text-[10px] font-black px-2 py-1 rounded-full border border-border ${task.priority === "high" ? "bg-red-500/10 text-red-500 border-red-500/20" :
-                      task.priority === "medium" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
-                        "bg-slate-500/10 text-slate-500 border-slate-500/20"
-                      }`}>
-                      {task.priority}
-                    </span>
-                  </td>
-                  <td className="p-6 text-right">
-                    <button onClick={() => deleteTask(task.id)} className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2">
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                  return matchesTitle || matchesTags;
+                })
+                .map((task) => (
+                  <tr key={task.id} className="group hover:bg-accent/30 transition-colors">
+                    <td className="p-6">
+                      <button onClick={() => toggleTask(task.id, task.status)} className="text-muted-foreground hover:text-primary transition-all">
+                        {task.status === "done" ? <CheckCircle2 className="text-primary" /> : <Circle />}
+                      </button>
+                    </td>
+                    <td className="p-6">
+                      <div>
+                        <p className={`font-bold text-lg ${task.status === "done" ? "line-through opacity-40" : ""}`}>
+                          {task.title}
+                        </p>
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {task.tags.map(tag => (
+                              <span key={tag} className="text-[9px] font-mono border border-border px-1.5 py-0.5 rounded-md uppercase tracking-tighter opacity-60">
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {task.status == "done" && task.completedAt && (
+                          <p className="text-[10px] font-mono text-primary mt-1 flex items-center gap-1 uppercase tracking-wider">
+                            <CheckCircle2 size={10} />
+                            Completed {new Date(task.completedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        )}
+                        {task.description && <p className="text-xs text-muted-foreground mt-1">{task.description}</p>}
+                      </div>
+                    </td>
+                    <td className="p-6 uppercase">
+                      <span className={`text-[10px] font-black px-2 py-1 rounded-full border border-border ${task.priority === "high" ? "bg-red-500/10 text-red-500 border-red-500/20" :
+                        task.priority === "medium" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                          "bg-slate-500/10 text-slate-500 border-slate-500/20"
+                        }`}>
+                        {task.priority}
+                      </span>
+                    </td>
+                    <td className="p-6 text-right">
+                      <button onClick={() => deleteTask(task.id)} className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2">
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               {tasks.length === 0 && (
                 <tr>
                   <td colSpan={4} className="p-12 text-center text-muted-foreground font-mono italic">
