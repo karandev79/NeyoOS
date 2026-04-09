@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import logo from "../logo.png";
 import { ChevronLeft, Save, Loader2, User, Ruler, Weight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function SettingsPage() {
     const [form, setForm] = useState({ name: "", height: 0, weight: 0, additionalInfo: "" });
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
     useEffect(() => {
         fetch("/api/settings", { headers: { "Authorization": `Bearer ${API_KEY}` } })
             .then(res => res.json())
-            .then(data => setForm(data));
+            .then(data => {
+                setForm(data);
+                setLoading(false);
+            });
     }, []);
 
     const save = async () => {
@@ -25,6 +31,18 @@ export default function SettingsPage() {
         setSaving(false);
         alert("Settings Updated :D");
     };
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-background text-muted-foreground gap-6">
+                <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                    <Image src={logo} alt="NeyoOS" width={60} height={60} className="relative z-10 opacity-50 animate-pulse grayscale" />
+                </div>
+                <p className="text-[10px] font-mono tracking-[0.4em] uppercase text-muted-foreground/30 animate-pulse border-t border-border/10 pt-4">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground p-6 md:p-12">

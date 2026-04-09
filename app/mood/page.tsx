@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import logo from "../logo.png";
 import { ChevronLeft, Plus, History, Zap, MessageSquare, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { processFetch } from "next/dist/client/components/router-reducer/fetch-server-response";
 
 type MoodEntry = { id: string; mood: number; energyLevel: number; note: string; createdAt: string };
 
@@ -59,7 +60,17 @@ export default function MoodPage() {
         if (val > 3) return "😐";
         return "😔";
     };
-    if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary" /></div>;
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen bg-background text-muted-foreground gap-6">
+                <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                    <Image src={logo} alt="NeyoOS" width={60} height={60} className="relative z-10 opacity-50 animate-pulse grayscale" />
+                </div>
+                <p className="text-[10px] font-mono tracking-[0.4em] uppercase text-muted-foreground/30 animate-pulse border-t border-border/10 pt-4">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground p-6 md:p-12 transition-colors">
@@ -67,7 +78,7 @@ export default function MoodPage() {
 
                 <div className="flex items-center justify-between">
                     <Link href="/dashboard" className="flex items-center gap-2 text-muted-foreground hover:text-primary uppercase font-mono text-xs tracking-widest">
-                        <ChevronLeft size={16} /> Back to Hub
+                        <ChevronLeft size={16} /> home
                     </Link>
                     <div className="text-right">
                         <h1 className="text-4xl font-black tracking-tighter italic uppercase text-primary">Mood Tracker</h1>
@@ -146,7 +157,7 @@ export default function MoodPage() {
                                         </div>
                                     )}
                                     <button
-                                        onClick={() => deleteMood(entry.id)} className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2"> 
+                                        onClick={() => deleteMood(entry.id)} className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2">
                                         <Trash2 size={16} />
                                     </button>
                                 </div>

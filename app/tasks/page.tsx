@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import logo from "../logo.png";
 import {
   CheckCircle2,
   Circle,
@@ -105,8 +107,12 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-muted-foreground gap-6">
+        <div className="relative">
+          <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 animate-pulse" />
+          <Image src={logo} alt="NeyoOS" width={60} height={60} className="relative z-10 opacity-50 animate-pulse grayscale" />
+        </div>
+        <p className="text-[10px] font-mono tracking-[0.4em] uppercase text-muted-foreground/30 animate-pulse border-t border-border/10 pt-4">Loading...</p>
       </div>
     );
   }

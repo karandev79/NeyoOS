@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import logo from "../logo.png";
 import {
   CheckCircle2,
   Smile,
@@ -54,7 +56,7 @@ export default function DashboardPage() {
           fetch("/api/habits", fetchOptions),
           fetch("/api/mood", fetchOptions),
           fetch("/api/tasks", fetchOptions),
-          fetch("/api/thoughts", fetchOptions),
+          fetch("/api/journal", fetchOptions),
           fetch("/api/settings", fetchOptions),
         ]);
 
@@ -84,18 +86,21 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-muted-foreground gap-4">
-        <LayoutDashboard className="w-10 h-10 text-blue-500" />
-        <p className="text-sm font-mono tracking-widest uppercase text-muted-foreground">Loading...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-muted-foreground gap-6">
+        <div className="relative">
+          <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-150 animate-pulse" />
+          <Image src={logo} alt="NeyoOS" width={60} height={60} className="relative z-10 opacity-50 animate-pulse grayscale" />
+        </div>
+        <p className="text-[10px] font-mono tracking-[0.4em] uppercase text-muted-foreground/30 animate-pulse border-t border-border/10 pt-4">Loading...</p>
       </div>
     );
   }
 
   const stats = [
-    { label: "Habits", value: data.habits.length, icon: Calendar, color: "text-foreground" },
-    { label: "Mood", value: data.moods.length > 0 ? (data.moods.reduce((acc, m) => acc + m.mood, 0) / data.moods.length).toFixed(1) : "—", icon: Smile, color: "text-foreground" },
-    { label: "Tasks", value: data.tasks.filter(t => t.status !== "done").length, icon: CheckCircle2, color: "text-foreground" },
-    { label: "Thoughts", value: data.thoughts.length, icon: Brain, color: "text-foreground" },
+    { label: "Habits", value: data.habits.length, icon: Calendar, color: "text-foreground", href: "/habits" },
+    { label: "Mood", value: data.moods.length > 0 ? (data.moods.reduce((acc, m) => acc + m.mood, 0) / data.moods.length).toFixed(1) : "—", icon: Smile, color: "text-foreground", href: "/mood" },
+    { label: "Tasks", value: data.tasks.filter(t => t.status !== "done").length, icon: CheckCircle2, color: "text-foreground", href: "/tasks" },
+    { label: "Journal", value: data.thoughts.length, icon: Brain, color: "text-foreground", href: "/journal" },
   ];
 
   return (
@@ -120,25 +125,29 @@ export default function DashboardPage() {
                 Settings
               </button>
             </Link>
-            <button className="h-12 px-6 rounded-full bg-primary text-primary-foreground hover:opacity-90 shadow-xl shadow-primary/10 transition-all font-bold text-sm flex items-center gap-2">
-              <Plus size={18} /> New Entry
-            </button>
+            <Link href={"/journal"}>
+              <button className="h-12 px-6 rounded-full bg-primary text-primary-foreground hover:opacity-90 shadow-xl shadow-primary/10 transition-all font-bold text-sm flex items-center gap-2">
+                <Plus size={18} /> New Entry
+              </button>
+            </Link>
           </div>
         </header>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {stats.map((stat) => (
-            <div key={stat.label} className="group p-8 rounded-[2rem] bg-card border border-border hover:border-primary/30 transition-all cursor-crosshair">
-              <div className="flex flex-col gap-6">
-                <div className="p-3 bg-secondary w-fit rounded-2xl group-hover:rotate-12 transition-transform">
-                  <stat.icon size={20} className="text-secondary-foreground" />
-                </div>
-                <div>
-                  <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">{stat.label}</p>
-                  <p className="text-4xl font-black">{stat.value}</p>
+            <Link key={stat.label} href={stat.href}>
+              <div className="group p-8 rounded-[2rem] bg-card border border-border hover:border-primary/30 transition-all cursor-crosshair h-full">
+                <div className="flex flex-col gap-6">
+                  <div className="p-3 bg-secondary w-fit rounded-2xl group-hover:rotate-12 transition-transform">
+                    <stat.icon size={20} className="text-secondary-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">{stat.label}</p>
+                    <p className="text-4xl font-black">{stat.value}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -200,7 +209,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-6">
-              <h3 className="text-sm font-mono uppercase tracking-[0.2em] text-muted-foreground">Recent Thoughts</h3>
+              <h3 className="text-sm font-mono uppercase tracking-[0.2em] text-muted-foreground">Recent Journals</h3>
               <div className="space-y-4">
                 {data.thoughts.slice(0, 2).map(t => (
                   <div key={t.id} className="p-6 rounded-2xl bg-secondary/30 border border-border/50">
