@@ -8,6 +8,11 @@ A Personal Improvement and tracking system, to track your tasks, emotions, habit
 - Daily emotional and energy level tracking.
 - Integrated task management with priority levels.
 
+### Tech Stack
+Next.js, tailwind, postgresql, etc
+
+Theme Design crafted on https://tweakcn.com
+
 ---
 
 Made with love by [Karan](https://github.com/karandev79)
