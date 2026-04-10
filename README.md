@@ -7,6 +7,8 @@ A Personal Improvement and tracking system, to track your tasks, emotions, habit
 - Journal system, log your daily activity.
 - Daily emotional and energy level tracking.
 - Integrated task management with priority levels.
+- Focus sessions timers.
+- Daily, Weekly or Monthly summary reports.
 
 ### Tech Stack
 Next.js, tailwind, postgresql, etc

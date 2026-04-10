@@ -97,3 +97,11 @@ export const userSettings = pgTable("user_settings", {
   additionalInfo: text("additional_info"), // for more details
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// focus sessions
+export const focusSessions = pgTable("focus_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  type: text("type").notNull(),
+  duration: integer("duration").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

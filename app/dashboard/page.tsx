@@ -10,11 +10,10 @@ import {
   Calendar,
   Plus,
   ArrowRight,
-  Loader2,
+  Zap,
   TrendingDown,
-  Wind,
-  LayoutDashboard,
-  Shield
+  Shield,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 
@@ -31,8 +30,9 @@ export default function DashboardPage() {
     moods: MoodEntry[];
     tasks: Task[];
     thoughts: Thought[];
+    focusSessions: any[];
     userName: string;
-  }>({ habits: [], moods: [], tasks: [], thoughts: [], userName: "User" });
+  }>({ habits: [], moods: [], tasks: [], thoughts: [], focusSessions: [], userName: "User" });
   const [loading, setLoading] = useState(true);
 
   const [greeting, setGreeting] = useState("Good Day");
@@ -58,14 +58,16 @@ export default function DashboardPage() {
           fetch("/api/tasks", fetchOptions),
           fetch("/api/journal", fetchOptions),
           fetch("/api/settings", fetchOptions),
+          fetch("/api/focus", fetchOptions),
         ]);
 
-        const [habits, moods, tasks, thoughts, settings] = await Promise.all([
+        const [habits, moods, tasks, thoughts, settings, focusSessions] = await Promise.all([
           habRes.json(),
           moodRes.json(),
           taskRes.json(),
           thoughtRes.json(),
           settingsRes.json(),
+          fetch("/api/focus", fetchOptions).then(r => r.json()),
         ]);
 
         setData({
@@ -73,6 +75,7 @@ export default function DashboardPage() {
           moods: Array.isArray(moods) ? moods : [],
           tasks: Array.isArray(tasks) ? tasks : [],
           thoughts: Array.isArray(thoughts) ? thoughts : [],
+          focusSessions: Array.isArray(focusSessions) ? focusSessions : [],
           userName: settings && settings.name ? settings.name : "User"
         });
       } catch (e) {
@@ -99,8 +102,9 @@ export default function DashboardPage() {
   const stats = [
     { label: "Habits", value: data.habits.length, icon: Calendar, color: "text-foreground", href: "/habits" },
     { label: "Mood", value: data.moods.length > 0 ? (data.moods.reduce((acc, m) => acc + m.mood, 0) / data.moods.length).toFixed(1) : "—", icon: Smile, color: "text-foreground", href: "/mood" },
-    { label: "Tasks", value: data.tasks.filter(t => t.status !== "done").length, icon: CheckCircle2, color: "text-foreground", href: "/tasks" },
+    { label: "Tasks ", value: data.tasks.filter(t => t.status !== "done").length, icon: CheckCircle2, color: "text-foreground", href: "/tasks" },
     { label: "Journal", value: data.thoughts.length, icon: Brain, color: "text-foreground", href: "/journal" },
+    { label: "Focus Sessions", value: `${data.focusSessions.filter(s => s.type === 'work' || s.type === 'custom').length}`, icon: Zap, color: "text-yellow-400", href: "/focus" },
   ];
 
   return (
@@ -123,6 +127,11 @@ export default function DashboardPage() {
             <Link href={"/settings"}>
               <button className="h-12 px-6 rounded-full border border-border hover:bg-accent transition-all font-bold text-sm">
                 Settings
+              </button>
+            </Link>
+            <Link href={"/intelligence"}>
+              <button className="h-12 px-6 rounded-full border border-border hover:bg-accent transition-all font-bold text-sm flex items-center gap-2">
+                <Sparkles size={16} className="text-primary" /> Generate Report
               </button>
             </Link>
             <Link href={"/journal"}>
